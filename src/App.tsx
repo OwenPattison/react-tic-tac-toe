@@ -13,12 +13,12 @@ class App extends React.Component {
   }
 }
 
-class Square extends React.Component<SquareProps, {}> {
+class Square extends React.Component<SquareProps, {value: string}> {
   constructor() {
     super();
 
     this.state = {
-      value: null
+      value: ''
     };
   }
 
