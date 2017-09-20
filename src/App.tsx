@@ -9,28 +9,52 @@ class App extends React.Component {
   }
 }
 
-class Square extends React.Component<{value: "X" | "O" | null, onClick: () => void}, {value: "X" | "O" | null}> {
-  render() {
-    return (
-      <button className="square" onClick={() => this.props.onClick()}>
-        {this.props.value}
-      </button>
-    );
-  }
-}
+const Square = (props: {value: "X" | "O" | null, onClick: () => void}) => {
+  return (
+    <button className="square" onClick={() => props.onClick()}>
+      {props.value}
+    </button>
+  );
+};
 
-class Board extends React.Component<{}, {squares: Array<"X" | "O" | null>}> {
+const calculateWinner = (squares: Array<"X" | "O" | null>) => {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ];
+
+  for (let line of lines) {
+    const [a, b, c] = line;
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+
+  return null;
+};
+
+class Board extends React.Component<{}, {squares: Array<"X" | "O" | null>, playerIsNext: boolean}> {
   constructor() {
     super();
     this.state = {
-      squares: Array(9).fill(null)
+      squares: Array(9).fill(null),
+      playerIsNext: true
     };
   }
 
   handleClick(i: number) {
     const squares = this.state.squares.slice();
-    squares[i] = "X";
-    this.setState({squares: squares});
+    squares[i] = this.state.playerIsNext ? "X" : "O";
+    this.setState({
+      squares: squares,
+      playerIsNext: !this.state.playerIsNext
+    });
   }
 
   renderSquare(i: number) {
@@ -38,7 +62,13 @@ class Board extends React.Component<{}, {squares: Array<"X" | "O" | null>}> {
   }
 
   render() {
-    const status = "Next player: X";
+    const winner = calculateWinner(this.state.squares);
+    let status;
+    if (winner) {
+      status = `The winner is: ${winner}`;
+    } else {
+      status = `Next player is: ${this.state.playerIsNext ? "X" : "O"}`;
+    }
 
     return (
       <div>
